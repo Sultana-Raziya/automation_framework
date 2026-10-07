@@ -1,0 +1,6 @@
+"username,password,expectedResult"
+"standard_user,secret_sauce,success"
+"invalid_user,wrong_password,failure"
+"standard_user,wrong_password,failure"
+"standard_user,,failure"
+",wrong_password,failure"
