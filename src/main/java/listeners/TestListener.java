@@ -21,8 +21,8 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
 
 import drivers.DriverFactory;
-import reports.ExtentManager;
-import reports.ExtentTestManager;
+import report.ExtentManager;
+import report.ExtentTestManager;
 import utils.LoggerUtil;
 
 public class TestListener implements ITestListener {
