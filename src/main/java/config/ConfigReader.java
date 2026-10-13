@@ -6,48 +6,48 @@ import java.util.Properties;
 
 public class ConfigReader {
 
-    private static final Properties properties =
-            new Properties();
+	private static final Properties properties = new Properties();
 
-    static {
+	static {
 
-        try (InputStream input =
-                     ConfigReader.class
-                             .getClassLoader()
-                             .getResourceAsStream(
-                                     "config.properties")) {
+		try (InputStream input = ConfigReader.class.getClassLoader().getResourceAsStream("config.properties")) {
 
-            if (input == null) {
-                throw new RuntimeException(
-                        "config.properties not found"
-                );
-            }
+			if (input == null) {
+				throw new RuntimeException("config.properties not found");
+			}
 
-            properties.load(input);
+			properties.load(input);
 
-        } catch (IOException e) {
+		} catch (IOException e) {
 
-            throw new RuntimeException(
-                    "Unable to load config.properties",
-                    e
-            );
-        }
-    }
+			throw new RuntimeException("Unable to load config.properties", e);
+		}
+	}
 
-    private ConfigReader() {
-    }
+	private ConfigReader() {
+	}
 
-    public static String getProperty(String key) {
+	public static String getProperty(String key) {
 
-        String systemValue =
-                System.getProperty(key);
+		String systemValue = System.getProperty(key);
 
-        if (systemValue != null
-                && !systemValue.trim().isEmpty()) {
+		if (systemValue != null && !systemValue.trim().isEmpty()) {
 
-            return systemValue;
-        }
+			return systemValue;
+		}
 
-        return properties.getProperty(key);
-    }
+		return properties.getProperty(key);
+	}
+
+	public static String getRequiredProperty(String key) {
+
+		String value = getProperty(key);
+
+		if (value == null || value.trim().isEmpty()) {
+			throw new RuntimeException("Required configuration property not found: " + key);
+		}
+
+		return value.trim();
+	}
+
 }

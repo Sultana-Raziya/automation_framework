@@ -1,92 +1,92 @@
 package pages;
 
-	import java.util.List;
+import java.util.List;
 
-	import org.openqa.selenium.By;
-	import org.openqa.selenium.WebDriver;
-	import org.openqa.selenium.WebElement;
+import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
-	public class CartPage extends BasePage {
+import utils.LoggerUtil;
 
-	    private By cartItems =
-	            By.cssSelector(".cart_item");
+public class CartPage extends BasePage {
 
-	    private By cartItemNames =
-	            By.cssSelector(".inventory_item_name");
+	private final Logger logger = LoggerUtil.getLogger(CartPage.class);
 
-	    private By cartItemPrices =
-	            By.cssSelector(".inventory_item_price");
+	private final By cartContainer = By.id("cart_contents_container");
 
-	    private By removeButtons =
-	            By.cssSelector(".cart_button");
+	private final By cartItems = By.cssSelector(".cart_item");
 
-	    private By checkoutButton =
-	            By.id("checkout");
+	private final By cartItemNames = By.cssSelector(".inventory_item_name");
 
-	    private By continueShoppingButton =
-	            By.id("continue-shopping");
+	private final By cartItemPrices = By.cssSelector(".inventory_item_price");
 
-	    public CartPage(WebDriver driver) {
+	private final By continueShoppingButton = By.id("continue-shopping");
 
-	        super(driver);
-	    }
+	private final By checkoutButton = By.id("checkout");
 
-	    public int getCartItemCount() {
+	public CartPage(WebDriver driver) {
 
-	        return driver.findElements(cartItems).size();
-	    }
-
-	    public List<String> getCartItemNames() {
-
-	        List<WebElement> elements =
-	                driver.findElements(cartItemNames);
-
-	        return elements.stream()
-	                .map(WebElement::getText)
-	                .toList();
-	    }
-
-	    public List<String> getCartItemPrices() {
-
-	        List<WebElement> elements =
-	                driver.findElements(cartItemPrices);
-
-	        return elements.stream()
-	                .map(WebElement::getText)
-	                .toList();
-	    }
-
-	    public void removeProduct(String productName) {
-
-	        By removeButton = By.xpath(
-	                "//div[@class='cart_item']" +
-	                "[.//div[@class='inventory_item_name'" +
-	                " and normalize-space()='" +
-	                productName +
-	                "']]" +
-	                "//button[contains(@id,'remove')]"
-	        );
-
-	        click(removeButton);
-	    }
-
-	    public void clickCheckout() {
-
-	        click(checkoutButton);
-	    }
-
-	    public void continueShopping() {
-
-	        click(continueShoppingButton);
-	    }
-
-		public By getRemoveButtons() {
-			return removeButtons;
-		}
-
-		public void setRemoveButtons(By removeButtons) {
-			this.removeButtons = removeButtons;
-		}
+		super(driver);
 	}
 
+	public boolean isCartPageDisplayed() {
 
+		logger.info("Checking whether cart page is displayed");
+
+		return isDisplayed(cartContainer);
+	}
+
+	public int getCartItemCount() {
+
+		logger.debug("Getting cart item count");
+
+		return driver.findElements(cartItems).size();
+	}
+
+	public List<String> getCartProductNames() {
+
+		logger.debug("Getting product names from cart");
+
+		return driver.findElements(cartItemNames).stream().map(WebElement::getText).toList();
+	}
+
+	public List<String> getCartProductPrices() {
+
+		logger.debug("Getting product prices from cart");
+
+		return driver.findElements(cartItemPrices).stream().map(WebElement::getText).toList();
+	}
+
+	public void removeProduct(String productName) {
+
+		logger.info("Removing product from cart: {}", productName);
+
+		String productId = productName.toLowerCase().replace(" ", "-");
+
+		By removeButton = By.cssSelector("[data-test='remove-" + productId + "']");
+
+		click(removeButton);
+	}
+
+	public InventoryPage continueShopping() {
+
+		logger.info("Continuing shopping");
+
+		click(continueShoppingButton);
+
+		return new InventoryPage(driver);
+	}
+
+	public CheckoutPage proceedToCheckout() {
+
+		logger.info("Proceeding to checkout");
+
+		click(checkoutButton);
+
+		wait.until(ExpectedConditions.urlContains("checkout-step-one.html"));
+
+		return new CheckoutPage(driver);
+	}
+}

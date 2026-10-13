@@ -9,6 +9,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import config.ConfigReader;
+
 public class BasePage {
 
 	protected WebDriver driver;
@@ -18,7 +20,9 @@ public class BasePage {
 
 		this.driver = driver;
 
-		this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		int explicitWait = Integer.parseInt(ConfigReader.getProperty("explicitWait"));
+
+		this.wait = new WebDriverWait(driver, Duration.ofSeconds(explicitWait));
 	}
 
 	protected WebElement waitForElementVisible(By locator) {
@@ -69,4 +73,17 @@ public class BasePage {
 
 		select.selectByVisibleText(text);
 	}
+
+	protected void handleAlertIfPresent() {
+
+		try {
+			wait.until(ExpectedConditions.alertIsPresent());
+
+			driver.switchTo().alert().accept();
+
+		} catch (Exception e) {
+			// No alert present
+		}
+	}
+
 }

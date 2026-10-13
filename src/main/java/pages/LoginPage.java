@@ -4,67 +4,49 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
+import utils.ElementUtils;
 import utils.LoggerUtil;
 
-public class LoginPage extends BasePage {
+public class LoginPage {
 
-    private By usernameField =
-            By.id("user-name");
+	private final WebDriver driver;
 
-    private By passwordField =
-            By.id("password");
+	private final Logger logger = LoggerUtil.getLogger(LoginPage.class);
 
-    private By loginButton =
-            By.id("login-button");
+	private final ElementUtils element;
 
-    private By errorMessage =
-            By.cssSelector("[data-test='error']");
-    
-    private final Logger logger =
-            LoggerUtil.getLogger(LoginPage.class);
+	private final By usernameField = By.id("user-name");
 
+	private final By passwordField = By.id("password");
 
+	private final By loginButton = By.id("login-button");
 
-    public LoginPage(WebDriver driver) {
+	private final By errorMessage = By.cssSelector("[data-test='error']");
 
-        super(driver);
-    }
+	public LoginPage(WebDriver driver) {
 
-    public void enterUsername(String username) {
+		this.driver = driver;
 
-        type(usernameField, username);
-    }
+		this.element = new ElementUtils(driver, logger);
+	}
 
-    public void enterPassword(String password) {
+	public void loginAs(String username, String password) {
 
-        type(passwordField, password);
-    }
+		logger.info("Attempting login with username: {}", username);
 
-    public void clickLogin() {
+		element.type(usernameField, username);
 
-        click(loginButton);
-    }
+		element.type(passwordField, password);
 
-    public void loginAs(String username,String password) {
+		element.click(loginButton);
+	}
 
-        logger.info("Attempting login with username: {}",username);
-        
-        type(usernameField, username);
+	public String getErrorMessage() {
 
-        logger.debug("Username entered");
+		return element.getText(errorMessage);
+	}
 
-        type(passwordField, password);
-
-        logger.debug("Password entered");
-
-        click(loginButton);
-
-        logger.info("Login button clicked");
-
-    }
-
-    public String getErrorMessage() {
-
-        return getText(errorMessage);
-    }
+	public WebDriver getDriver() {
+		return driver;
+	}
 }

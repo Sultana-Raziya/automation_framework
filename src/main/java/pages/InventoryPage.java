@@ -2,104 +2,148 @@ package pages;
 
 import java.util.List;
 
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import utils.LoggerUtil;
+
 public class InventoryPage extends BasePage {
 
-    private By inventoryContainer =
-            By.id("inventory_container");
+	private final Logger logger = LoggerUtil.getLogger(InventoryPage.class);
 
-    private By pageTitle =
-            By.cssSelector(".title");
+	private final By inventoryContainer = By.id("inventory_container");
 
-    private By productItems =
-            By.cssSelector(".inventory_item");
+	private final By pageTitle = By.cssSelector(".title");
 
-    private By productNames =
-            By.cssSelector(".inventory_item_name");
+	private final By productItems = By.cssSelector(".inventory_item");
 
-    private By productPrices =
-            By.cssSelector(".inventory_item_price");
+	private final By productNames = By.cssSelector(".inventory_item_name");
 
-    private By sortDropdown =
-            By.cssSelector(".product_sort_container");
+	private final By productPrices = By.cssSelector(".inventory_item_price");
 
-    private By shoppingCart =
-            By.cssSelector(".shopping_cart_link");
+	private final By sortDropdown = By.cssSelector(".product_sort_container");
 
-    private By cartBadge =
-            By.cssSelector(".shopping_cart_badge");
+	private final By shoppingCart = By.cssSelector(".shopping_cart_link");
 
-    public InventoryPage(WebDriver driver) {
-        super(driver);
-    }
+	private final By cartBadge = By.cssSelector(".shopping_cart_badge");
 
-    public boolean isInventoryPageDisplayed() {
-        return isDisplayed(inventoryContainer);
-    }
+	public InventoryPage(WebDriver driver) {
 
-    public String getPageTitle() {
-        return getText(pageTitle);
-    }
+		super(driver);
+	}
 
-    public int getProductCount() {
-        return driver.findElements(productItems).size();
-    }
+	public boolean isInventoryPageDisplayed() {
 
-    public List<String> getProductNames() {
+		logger.info("Checking whether inventory page is displayed");
 
-        return driver.findElements(productNames)
-                .stream()
-                .map(WebElement::getText)
-                .toList();
-    }
+		return isDisplayed(inventoryContainer);
+	}
 
-    public List<String> getProductPrices() {
+	public String getPageTitle() {
 
-        return driver.findElements(productPrices)
-                .stream()
-                .map(WebElement::getText)
-                .toList();
-    }
+		logger.debug("Getting inventory page title");
 
-    public void sortProducts(String option) {
+		return getText(pageTitle);
+	}
 
-        selectByVisibleText(
-                sortDropdown,
-                option
-        );
-    }
+	public int getProductCount() {
 
-    public void addProductToCart(String productName) {
+		logger.debug("Getting product count");
 
-        String productId =
-                getProductId(productName);
+		return driver.findElements(productItems).size();
+	}
 
-        By addButton = By.cssSelector(
-                "[data-test='add-to-cart-" +
-                productId +
-                "']"
-        );
+	public List<String> getProductNames() {
 
-        click(addButton);
-    }
+		logger.debug("Getting product names");
 
-    private String getProductId(String productName) {
+		return driver.findElements(productNames).stream().map(WebElement::getText).toList();
+	}
 
-        return productName
-                .toLowerCase()
-                .replace(" ", "-");
-    }
+	public List<String> getProductPrices() {
 
-    public String getCartItemCount() {
+		logger.debug("Getting product prices");
 
-        return getText(cartBadge);
-    }
+		return driver.findElements(productPrices).stream().map(WebElement::getText).toList();
+	}
 
-    public void openCart() {
+	public void sortProducts(String option) {
 
-        click(shoppingCart);
-    }
+		logger.info("Sorting products using option: {}", option);
+
+		selectByVisibleText(sortDropdown, option);
+	}
+
+	public void addProductToCart(String productName) {
+
+		logger.info("Adding product to cart: {}", productName);
+
+		String productId = getProductId(productName);
+
+		By addButton = By.cssSelector("[data-test='add-to-cart-" + productId + "']");
+
+		click(addButton);
+		By removeButton = By.cssSelector("[data-test='remove-" + productId + "']");
+
+		waitForElementVisible(removeButton);
+
+		logger.info("Product successfully added to cart: {}", productName);
+
+	}
+
+	public boolean isProductDisplayed(String productName) {
+
+		return getProductNames().contains(productName);
+	}
+
+	private String getProductId(String productName) {
+
+		return productName.toLowerCase().replace(" ", "-");
+	}
+
+	public void removeProductFromCart(String productName) {
+
+		logger.info("Removing product from cart: {}", productName);
+
+		String productId = getProductId(productName);
+
+		By removeButton = By.cssSelector("[data-test='remove-" + productId + "']");
+
+		click(removeButton);
+	}
+
+	public String getCartItemCount() {
+
+		logger.debug("Getting cart item count");
+
+		return getText(cartBadge);
+	}
+
+	public boolean isCartBadgeDisplayed() {
+
+		return isDisplayed(cartBadge);
+	}
+
+	public CartPage openCart() {
+
+		logger.info("Opening shopping cart");
+
+		click(shoppingCart);
+
+		return new CartPage(driver);
+	}
+
+	public boolean isProductAddedToCart(String productName) {
+
+		logger.info("Checking whether product was added to cart: {}", productName);
+
+		String productId = productName.toLowerCase().replace(" ", "-");
+
+		By removeButton = By.cssSelector("[data-test='remove-" + productId + "']");
+
+		return isDisplayed(removeButton);
+	}
+
 }

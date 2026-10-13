@@ -27,242 +27,151 @@ import utils.LoggerUtil;
 
 public class TestListener implements ITestListener {
 
-    private final Logger logger =
-            LoggerUtil.getLogger(TestListener.class);
+	private final Logger logger = LoggerUtil.getLogger(TestListener.class);
 
-    private final ExtentReports extent =
-            ExtentManager.getInstance();
+	private final ExtentReports extent = ExtentManager.getInstance();
 
-    @Override
-    public void onStart(ITestContext context) {
+	long threadId = Thread.currentThread().getId();
 
-        logger.info(
-                "TEST SUITE STARTED: {}",
-                context.getName()
-        );
-    }
+	@Override
+	public void onStart(ITestContext context) {
 
-    @Override
-    public void onTestStart(ITestResult result) {
+		logger.info("TEST SUITE STARTED: {}", context.getName());
+	}
 
-        String testName =
-                result.getMethod()
-                       .getMethodName();
+	@Override
+	public void onTestStart(ITestResult result) {
 
-        ExtentTest test =
-                extent.createTest(testName);
+		String testName = result.getMethod().getMethodName();
 
-        ExtentTestManager.setTest(test);
+		ExtentTest test = extent.createTest(testName);
 
-        test.log(
-                Status.INFO,
-                "Test execution started"
-        );
+		ExtentTestManager.setTest(test);
 
-        logger.info(
-                "STARTING TEST: {}",
-                testName
-        );
-    }
+		test.log(Status.INFO, "Test execution started");
 
-    @Override
-    public void onTestSuccess(ITestResult result) {
+		logger.info("STARTING TEST: {} | Thread Id: {} ", testName, threadId);
+	}
 
-        String testName =
-                result.getMethod()
-                       .getMethodName();
+	@Override
+	public void onTestSuccess(ITestResult result) {
 
-        ExtentTest test =
-                ExtentTestManager.getTest();
+		String testName = result.getMethod().getMethodName();
 
-        test.log(
-                Status.PASS,
-                "Test passed successfully"
-        );
+		ExtentTest test = ExtentTestManager.getTest();
 
-        logger.info(
-                "TEST PASSED: {}",
-                testName
-        );
-    }
+		test.log(Status.PASS, "Test passed successfully");
 
-    @Override
-    public void onTestFailure(ITestResult result) {
+		logger.info("TEST PASSED: {} | Thread Id: {} ", testName, threadId);
+	}
 
-        String testName =
-                result.getMethod()
-                       .getMethodName();
+	@Override
+	public void onTestFailure(ITestResult result) {
 
-        ExtentTest test =
-                ExtentTestManager.getTest();
+		String testName = result.getMethod().getMethodName();
 
-        test.log(
-                Status.FAIL,
-                "Test failed"
-        );
+		ExtentTest test = ExtentTestManager.getTest();
 
-        test.log(
-                Status.FAIL,
-                result.getThrowable()
-        );
+		test.log(Status.FAIL, "Test failed");
 
-        logger.error(
-                "TEST FAILED: {}",
-                testName
-        );
+		test.log(Status.FAIL, result.getThrowable());
 
-        logger.error(
-                "FAILURE REASON",
-                result.getThrowable()
-        );
+		logger.error("TEST FAILED: {} | Thread Id: {} ", testName, threadId);
 
-        String screenshotPath =
-                captureScreenshot(result);
+		logger.error("FAILURE REASON", result.getThrowable());
 
-        if (screenshotPath != null) {
+		String screenshotPath = captureScreenshot(result);
 
-            try {
+		if (screenshotPath != null) {
 
-                test.addScreenCaptureFromPath(
-                        screenshotPath
-                );
+			try {
 
-            } catch (Exception e) {
+				test.addScreenCaptureFromPath(screenshotPath);
 
-                logger.error(
-                        "Unable to attach screenshot",
-                        e
-                );
-            }
-        }
-    }
+			} catch (Exception e) {
 
-    @Override
-    public void onTestSkipped(ITestResult result) {
+				logger.error("Unable to attach screenshot", e);
+			}
+		}
+	}
 
-        ExtentTest test =
-                ExtentTestManager.getTest();
+	@Override
+	public void onTestSkipped(ITestResult result) {
 
-        if (test != null) {
+		ExtentTest test = ExtentTestManager.getTest();
 
-            test.log(
-                    Status.SKIP,
-                    "Test skipped"
-            );
+		if (test != null) {
 
-            if (result.getThrowable() != null) {
+			test.log(Status.SKIP, "Test skipped");
 
-                test.log(
-                        Status.SKIP,
-                        result.getThrowable()
-                );
-            }
-        }
+			if (result.getThrowable() != null) {
 
-        logger.warn(
-                "TEST SKIPPED: {}",
-                result.getMethod()
-                       .getMethodName()
-        );
-    }
+				test.log(Status.SKIP, result.getThrowable());
+			}
+		}
 
-    @Override
-    public void onFinish(ITestContext context) {
+		logger.warn("TEST SKIPPED: {}", result.getMethod().getMethodName());
+	}
 
-        logger.info(
-                "TEST SUITE FINISHED: {}",
-                context.getName()
-        );
+	@Override
+	public void onFinish(ITestContext context) {
 
-        extent.flush();
+		logger.info("TEST SUITE FINISHED: {}", context.getName());
 
-        ExtentTestManager.removeTest();
-    }
+		extent.flush();
 
-    private String captureScreenshot(
-            ITestResult result) {
+		ExtentTestManager.removeTest();
+	}
 
-        WebDriver driver;
+	private String captureScreenshot(ITestResult result) {
 
-        try {
+		WebDriver driver;
 
-            driver =
-                    DriverFactory.getDriver();
+		try {
 
-        } catch (Exception e) {
+			driver = DriverFactory.getDriver();
 
-            logger.error(
-                    "Unable to get WebDriver",
-                    e
-            );
+		} catch (Exception e) {
 
-            return null;
-        }
+			logger.error("Unable to get WebDriver", e);
 
-        if (driver == null) {
+			return null;
+		}
 
-            logger.error(
-                    "WebDriver is null"
-            );
+		if (driver == null) {
 
-            return null;
-        }
+			logger.error("WebDriver is null");
 
-        String timestamp =
-                new SimpleDateFormat(
-                        "yyyyMMdd_HHmmss"
-                ).format(new Date());
+			return null;
+		}
 
-        String testName =
-                result.getMethod()
-                       .getMethodName();
+		String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 
-        String fileName =
-                testName
-                + "_"
-                + timestamp
-                + ".png";
+		String testName = result.getMethod().getMethodName();
 
-        Path directory =
-                Paths.get("screenshots");
+		String fileName = testName + "_" + timestamp + ".png";
 
-        try {
+		Path directory = Paths.get("screenshots");
 
-            Files.createDirectories(
-                    directory
-            );
+		try {
 
-            File screenshot =
-                    ((TakesScreenshot) driver)
-                            .getScreenshotAs(
-                                    OutputType.FILE
-                            );
+			Files.createDirectories(directory);
 
-            Path destination =
-                    directory.resolve(fileName);
+			File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
 
-            Files.copy(
-                    screenshot.toPath(),
-                    destination
-            );
+			Path destination = directory.resolve(fileName);
 
-            logger.info(
-                    "Screenshot saved: {}",
-                    destination.toAbsolutePath()
-            );
+			Files.copy(screenshot.toPath(), destination);
 
-            return destination
-                    .toAbsolutePath()
-                    .toString();
+			logger.info("Screenshot saved: {}", destination.toAbsolutePath());
 
-        } catch (IOException e) {
+			return destination.toAbsolutePath().toString();
 
-            logger.error(
-                    "Unable to save screenshot",
-                    e
-            );
+		} catch (IOException e) {
 
-            return null;
-        }
-    }
+			logger.error("Unable to save screenshot", e);
+
+			return null;
+		}
+	}
 }

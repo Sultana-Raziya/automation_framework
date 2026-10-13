@@ -8,7 +8,7 @@ import org.openqa.selenium.edge.EdgeOptions;
 
 public class DriverFactory {
 
-	private static ThreadLocal<WebDriver> driver = new ThreadLocal<>();
+	private static final ThreadLocal<WebDriver> driver = new ThreadLocal<>();
 
 	private DriverFactory() {
 	}
@@ -29,6 +29,8 @@ public class DriverFactory {
 			configureHeadless(chromeOptions, headless);
 
 			chromeOptions.addArguments("--start-maximized");
+			chromeOptions.addArguments("--disable-notifications");
+			chromeOptions.addArguments("--disable-popup-blocking");
 
 			driver.set(new ChromeDriver(chromeOptions));
 
@@ -41,6 +43,8 @@ public class DriverFactory {
 			configureHeadless(edgeOptions, headless);
 
 			edgeOptions.addArguments("--start-maximized");
+			edgeOptions.addArguments("--disable-notifications");
+			edgeOptions.addArguments("--disable-popup-blocking");
 
 			driver.set(new EdgeDriver(edgeOptions));
 

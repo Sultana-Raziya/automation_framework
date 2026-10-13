@@ -1,5 +1,7 @@
 package base;
 
+import java.time.Duration;
+
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.testng.annotations.AfterMethod;
@@ -9,63 +11,64 @@ import org.testng.annotations.Listeners;
 import config.ConfigReader;
 import drivers.DriverFactory;
 import utils.LoggerUtil;
+import utils.WaitUtils;
 import listeners.TestListener;
 
 @Listeners(TestListener.class)
 public class BaseTest {
 
-    protected WebDriver driver;
+	protected WebDriver driver;
+	protected WaitUtils wait;
 
-    protected final Logger logger =
-            LoggerUtil.getLogger(getClass());
+	protected final Logger logger = LoggerUtil.getLogger(getClass());
 
-    @BeforeMethod(alwaysRun = true)
-    public void setUp() {
+	@BeforeMethod(alwaysRun = true)
+	public void setUp() {
 
-        logger.info("========== TEST SETUP STARTED ==========");
+		logger.info("========== TEST SETUP STARTED ==========");
 
-        String browser =
-                ConfigReader.getProperty("browser");
+		String browser = ConfigReader.getRequiredProperty("browser");
 
-        boolean headless =
-                Boolean.parseBoolean(
-                        ConfigReader.getProperty("headless")
-                );
+		boolean headless = Boolean.parseBoolean(ConfigReader.getRequiredProperty("headless"));
 
-        String baseUrl =
-                ConfigReader.getProperty("baseUrl");
+		String baseUrl = ConfigReader.getRequiredProperty("baseUrl");
 
-        logger.info("Browser: {}", browser);
-        logger.info("Headless: {}", headless);
-        logger.info("Base URL: {}", baseUrl);
+		logger.info("Browser: {}", browser);
+		logger.info("Headless: {}", headless);
+		logger.info("Base URL: {}", baseUrl);
 
-        DriverFactory.initializeDriver(
-                browser,
-                headless
-        );
+		DriverFactory.initializeDriver(browser, headless);
 
-        driver = DriverFactory.getDriver();
+		driver = DriverFactory.getDriver();
 
-        logger.info("WebDriver initialized successfully");
+		// create WaitUtils after driver is initilized
+		wait = new WaitUtils(driver);
+		wait.waitForPageLoad();
 
-        driver.get(baseUrl);
+		// add a page-load timeout
+		driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
 
-        logger.info("Navigated to application");
+		logger.info("WebDriver initialized successfully");
 
-        logger.info("========== TEST SETUP COMPLETED ==========");
-    }
+		driver.get(baseUrl);
 
-    @AfterMethod(alwaysRun = true)
-    public void tearDown() {
+		logger.info("Navigated to application");
 
-        logger.info("========== TEST CLEANUP STARTED ==========");
+		logger.info("========== TEST SETUP COMPLETED ==========");
+	}
 
-        DriverFactory.quitDriver();
+	@AfterMethod(alwaysRun = true)
+	public void tearDown() {
 
-        driver = null;
+		logger.info("========== TEST CLEANUP STARTED ==========");
 
-        logger.info("WebDriver closed");
+		DriverFactory.quitDriver();
 
-        logger.info("========== TEST CLEANUP COMPLETED ==========");
-    }
+		driver = null;
+
+		logger.info("WebDriver closed");
+
+		logger.info("========== TEST CLEANUP COMPLETED ==========");
+	}
+
 }
