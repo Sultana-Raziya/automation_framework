@@ -20,9 +20,9 @@ import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
 
+import documts.ExtentManager;
+import documts.ExtentTestManager;
 import drivers.DriverFactory;
-import report.ExtentManager;
-import report.ExtentTestManager;
 import utils.LoggerUtil;
 
 public class TestListener implements ITestListener {
