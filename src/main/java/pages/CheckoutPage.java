@@ -3,6 +3,7 @@ package pages;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import utils.LoggerUtil;
 
@@ -64,6 +65,10 @@ public class CheckoutPage extends BasePage {
 	public void clickCancel() {
 		logger.info("Clicking cancel button ");
 		click(cancelButton);
+
+		wait.until(ExpectedConditions.urlContains("cart.html"));
+
+		logger.info("Returned to cart successfully");
 	}
 
 	public void enterCustomerInformation(String firstNameValue, String lastNameValue, String postalCodeValue) {

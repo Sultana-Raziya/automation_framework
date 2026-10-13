@@ -29,6 +29,11 @@ public class BasePage {
 
 		return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 	}
+	
+	protected Boolean waitForLocatedElementInvisible(By locator) {
+
+		return wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+	}
 
 	protected WebElement waitForElementClickable(By locator) {
 

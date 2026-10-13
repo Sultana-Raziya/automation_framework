@@ -31,10 +31,7 @@ public class CheckoutTest extends BaseTest {
 		Assert.assertEquals(inventoryPage.getCartItemCount(), "1", "Cart should contain one product");
 
 		// Open cart
-		inventoryPage.openCart();
-
-		CartPage cartPage = new CartPage(driver);
-
+		CartPage cartPage = inventoryPage.openCart();
 		Assert.assertEquals(cartPage.getCartItemCount(), 1, "Cart should contain one item");
 
 		Assert.assertTrue(cartPage.getCartProductNames().contains("Sauce Labs Backpack"),

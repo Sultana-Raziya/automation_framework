@@ -84,7 +84,8 @@ public class InventoryPage extends BasePage {
 
 		By addButton = By.cssSelector("[data-test='add-to-cart-" + productId + "']");
 
-		click(addButton);
+//		click(addButton);
+		waitForElementClickable(addButton).click();
 		By removeButton = By.cssSelector("[data-test='remove-" + productId + "']");
 
 		waitForElementVisible(removeButton);

@@ -67,7 +67,15 @@ public class CartPage extends BasePage {
 
 		By removeButton = By.cssSelector("[data-test='remove-" + productId + "']");
 
-		click(removeButton);
+		By cartItem = By.xpath("//div[contains(@class,'cart_item')]" + "[.//div[contains(@class,'inventory_item_name') "
+				+ "and normalize-space()='" + productName + "']]");
+		waitForElementClickable(removeButton).click();
+
+//		click(removeButton);
+		
+		waitForLocatedElementInvisible(cartItem);
+		
+		logger.info("Product removed successfully: {}", productName);
 	}
 
 	public InventoryPage continueShopping() {
@@ -83,10 +91,13 @@ public class CartPage extends BasePage {
 
 		logger.info("Proceeding to checkout");
 
-		click(checkoutButton);
+//		click(checkoutButton);
+		waitForElementClickable(checkoutButton).click();
 
 		wait.until(ExpectedConditions.urlContains("checkout-step-one.html"));
 
+		 logger.info("Checkout page opened successfully");
+		
 		return new CheckoutPage(driver);
 	}
 }
